@@ -37,30 +37,35 @@ Base image: `ghcr.io/inti-cmnb/kicad10_auto:latest` (Debian 13 Trixie + KiCad 10
 
 ## Quick start
 
-Prerequisites: Docker (Docker Desktop with WSL 2 backend on Windows, or Docker Engine on Linux).
+### Host Prerequisites
+* **Windows**: Docker is by default found and hosted inside the **WSL Debian** environment (`wsl -d Debian`). When running Docker commands directly on Windows, execute them via WSL (`wsl -d Debian bash -c "docker ..."`), or use the Windows batch scripts in `bin/` which automatically detect and delegate to WSL Debian.
+* **Linux**: Docker is native and accessible directly in PATH (`docker ...`).
 
 ```bash
 docker compose up -d
 # Web desktop: http://localhost:6080/vnc.html  (default password: rfworkbench)
 ```
 
-Windows helpers in `bin\`:
+### Helper Scripts in `bin/`
 
-| Script | Description |
-| :--- | :--- |
-| `rf-gui.bat` / `.ps1` | Start container + open web desktop in browser |
-| `rf-bash.bat` / `.ps1` | Interactive bash shell in `/workspace` |
-| `rf-run.bat` / `.ps1` | Run a command headlessly, e.g. `rf-run.bat python tests/verify_environment.py` |
-| `rf-kicad.bat` | Launch KiCad GUI + open browser |
-| `rf-qucs.bat` | Launch Qucs-S + open browser |
-| `rf-freecad.bat` | Launch FreeCAD + open browser |
-| `rf-openems.bat` | Launch AppCSXCAD + open browser |
+| Windows Launcher | Linux / WSL Launcher | Description |
+| :--- | :--- | :--- |
+| `bin\rf-run.bat` / `.ps1` | `bin/rf-run` | Run a command headlessly, e.g. `bin/rf-run python3 tests/verify_environment.py` |
+| `bin\rf-bash.bat` / `.ps1` | `bin/rf-bash` | Interactive bash shell in `/workspace` |
+| `bin\rf-gui.bat` / `.ps1` | `bin/rf-gui` | Start container + open web desktop in browser |
+| `bin\rf-kicad.bat` | — | Launch KiCad GUI + open browser |
+| `bin\rf-qucs.bat` | — | Launch Qucs-S + open browser |
+| `bin\rf-freecad.bat` | — | Launch FreeCAD + open browser |
+| `bin\rf-openems.bat` | — | Launch AppCSXCAD + open browser |
 
 ## Verify the installation
 
 ```bash
-# Inside the container, or from the host:
+# On Windows:
 bin\rf-run.bat python tests/verify_environment.py
+
+# On Linux / WSL:
+./bin/rf-run python3 tests/verify_environment.py
 ```
 
 Runs 14 checks: KiCad CLI + `pcbnew`, FreeCAD CLI + Python API, Microwave

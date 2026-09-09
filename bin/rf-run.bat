@@ -14,5 +14,5 @@ if %errorlevel% equ 0 (
 ) else (
     rem Fallback to WSL docker if native docker is not in Windows PATH
     for /f "delims=" %%i in ('wsl -d Debian wslpath "%~dp0.."') do set "WSL_DIR=%%i"
-    wsl -d Debian bash -c "cd !WSL_DIR! 2>/dev/null || cd /mnt/d/Workspace/rf/rf-suite; (docker compose exec rf-suite %* 2>/dev/null || docker compose run --rm rf-suite %*)"
+    wsl -d Debian bash "!WSL_DIR!/bin/rf-run" %*
 )
