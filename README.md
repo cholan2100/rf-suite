@@ -10,7 +10,7 @@ Docker-only extract of `rf-workbench` — no agent system included.
 ```bash
 docker compose up -d
 # Web desktop:
-# http://localhost:6081/vnc.html
+# http://localhost:6080/vnc.html
 ```
 
 Windows helpers in `bin\`:
@@ -27,4 +27,4 @@ python tests/verify_environment.py
 
 ## Config
 
-Copy `.env.example` to `.env` and adjust `PROJECT_PATH`, `WEB_PORT=6081`, `VNC_PORT=5901`, `MCP_PORT=8001`.
+Copy `.env.example` to `.env` and adjust `PROJECT_PATH`, `WEB_PORT=6080`, `VNC_PORT=5900`, `MCP_PORT=8000`.

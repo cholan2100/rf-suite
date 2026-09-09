@@ -11,12 +11,12 @@ services:
     stdin_open: true
     tty: true
     ports:
-      # noVNC Browser GUI: Navigate to http://localhost:6081
-      - "${WEB_PORT:-6081}:6080"
+      # noVNC Browser GUI: Navigate to http://localhost:6080
+      - "${WEB_PORT:-6080}:6080"
       # Direct VNC client access
-      - "${VNC_PORT:-5901}:5900"
+      - "${VNC_PORT:-5900}:5900"
       # MCP Server / API access
-      - "${MCP_PORT:-8001}:8000"
+      - "${MCP_PORT:-8000}:8000"
     volumes:
       # Project files mount (configure in .env or override via command line; defaults to parent directory)
       - "${PROJECT_PATH:-..}:/workspace"
