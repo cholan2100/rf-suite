@@ -1,0 +1,25 @@
+# Environment configuration
+.env
+!.env.example
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.idea/
+*.swp
+*.swo
+*~
+
+# Build / runtime
+data/
+*.log
