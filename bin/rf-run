@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$SCRIPT_DIR"
+
+if docker compose exec rf-suite "$@" 2>/dev/null; then
+    exit 0
+else
+    docker compose run --rm rf-suite "$@"
+fi
