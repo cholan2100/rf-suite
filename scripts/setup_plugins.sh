@@ -27,6 +27,20 @@ if [ ! -d "$FREECAD_MOD_DIR/freecad-microwave" ]; then
     git clone --depth 1 https://github.com/mishka-zz/freecad-microwave.git "$FREECAD_MOD_DIR/freecad-microwave"
 fi
 
+# Minimum-version guard: refuse anything older than 0.0.2.
+# Upstream has no git tags; the version authority is Microwave/__init__.py (__version__).
+MW_VERSION_FILE="$FREECAD_MOD_DIR/freecad-microwave/Microwave/__init__.py"
+MW_VERSION="$(grep -E '^__version__ *=' "$MW_VERSION_FILE" 2>/dev/null | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' || true)"
+echo " freecad-microwave version: ${MW_VERSION:-<unknown>} (requires >= 0.0.2)"
+if [ -z "${MW_VERSION:-}" ]; then
+    echo "ERROR: could not determine freecad-microwave version from $MW_VERSION_FILE" >&2
+    exit 1
+fi
+if [ "$(printf '%s\n%s\n' '0.0.2' "$MW_VERSION" | sort -V | head -n 1)" != "0.0.2" ]; then
+    echo "ERROR: freecad-microwave $MW_VERSION is older than required 0.0.2 - remove $FREECAD_MOD_DIR/freecad-microwave and rebuild" >&2
+    exit 1
+fi
+
 # Link Microwave module into FreeCAD Mod directories and python site-packages
 ln -sf "$FREECAD_MOD_DIR/freecad-microwave" /usr/lib/freecad/Mod/Microwave || true
 

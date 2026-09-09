@@ -64,12 +64,20 @@ def check_freecad_python():
         return False, str(e)
 test_check("FreeCAD Python (FreeCAD, Part)", check_freecad_python)
 
-# 5. FreeCAD Microwave Workbench
+# 5. FreeCAD Microwave Workbench (requires >= 0.0.2)
 def check_freecad_microwave():
     try:
         from Microwave.Solvers.openems import preflight, read, run, write
         from Microwave.Solvers.openems.materials import VACUUM_PERMITTIVITY
-        return True, f"Microwave Workbench OK (eps_0 = {VACUUM_PERMITTIVITY:.3e})"
+        import Microwave
+        ver = getattr(Microwave, "__version__", "unknown")
+        try:
+            nums = tuple(int(p) for p in str(ver).split("."))
+        except Exception:
+            return False, f"Microwave Workbench version unparseable: {ver!r} (requires >= 0.0.2)"
+        if nums < (0, 0, 2):
+            return False, f"Microwave Workbench {ver} is older than required 0.0.2"
+        return True, f"Microwave Workbench {ver} OK (eps_0 = {VACUUM_PERMITTIVITY:.3e})"
     except Exception as e:
         return False, str(e)
 test_check("FreeCAD Microwave Workbench", check_freecad_microwave)
