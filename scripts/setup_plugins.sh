@@ -65,7 +65,7 @@ echo "[4/4] Creating compatibility paths and wrappers..."
 mkdir -p /usr/local/bin
 cat << 'EOF' > /usr/local/bin/rf-env-info
 #!/bin/bash
-echo "=== RF Workbench Linux Container ==="
+echo "=== RF Suite Linux Container ==="
 echo "KiCad:     $(kicad-cli --version 2>/dev/null || echo 'Not found')"
 echo "FreeCAD:   $(freecadcmd --version 2>/dev/null || echo 'Not found')"
 echo "openEMS:   $(openEMS --version 2>&1 | head -n 2 | tail -n 1 || echo 'Installed')"

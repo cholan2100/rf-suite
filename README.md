@@ -3,7 +3,7 @@
 Containerized Linux engineering environment for RF / EDA work:
 KiCad 10, FreeCAD 1.0, openEMS, Qucs-S + qucsator-rf, ngspice, scikit-rf, noVNC desktop.
 
-Docker-only extract of `rf-workbench` — no agent system included.
+Containerized Linux engineering environment for RF / EDA work — no agent system included.
 
 ## Quick start
 

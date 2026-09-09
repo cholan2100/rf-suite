@@ -1,5 +1,5 @@
 # ==============================================================================
-# RF Workbench Dockerfile (Debian 13 Trixie + KiCad 10 Auto)
+# RF Suite Dockerfile (Debian 13 Trixie + KiCad 10 Auto)
 # Complete containerized RF Engineering & Simulation suite:
 # KiCad 10 (CLI raytracer + pcbnew), FreeCAD 1.0 + Microwave Workbench,
 # openEMS + CSXCAD FDTD solvers, Qucs-S + qucsator-rf + ngspice 44,
@@ -8,7 +8,7 @@
 
 FROM ghcr.io/inti-cmnb/kicad10_auto:latest
 
-LABEL maintainer="RF Workbench Team"
+LABEL maintainer="RF Suite Team"
 LABEL description="Complete containerized RF Engineering & Simulation suite on Debian 13 with KiCad 10"
 
 USER root
@@ -23,7 +23,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LD_LIBRARY_PATH=/opt/openEMS/lib:/usr/local/lib:$LD_LIBRARY_PATH \
     PATH=/opt/openEMS/bin:/usr/local/bin:$PATH
 
-WORKDIR /opt/rf-linux-env
+WORKDIR /opt/rf-suite-env
 
 # ------------------------------------------------------------------------------
 # 1. Clean obsolete repo keys & install Base, Build & Desktop Packages
@@ -94,34 +94,34 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ------------------------------------------------------------------------------
 # 3. Install Python Scientific & RF Stack
 # ------------------------------------------------------------------------------
-COPY requirements.txt /opt/rf-linux-env/requirements.txt
-RUN pip3 install --no-cache-dir --break-system-packages --ignore-installed -r /opt/rf-linux-env/requirements.txt
+COPY requirements.txt /opt/rf-suite-env/requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages --ignore-installed -r /opt/rf-suite-env/requirements.txt
 
 # ------------------------------------------------------------------------------
 # 4. Build and Install openEMS + CSXCAD (FDTD Solver)
 # ------------------------------------------------------------------------------
-COPY scripts/install_openems.sh /opt/rf-linux-env/scripts/install_openems.sh
-RUN chmod +x /opt/rf-linux-env/scripts/install_openems.sh && /opt/rf-linux-env/scripts/install_openems.sh
+COPY scripts/install_openems.sh /opt/rf-suite-env/scripts/install_openems.sh
+RUN chmod +x /opt/rf-suite-env/scripts/install_openems.sh && /opt/rf-suite-env/scripts/install_openems.sh
 
 # ------------------------------------------------------------------------------
 # 5. Build and Install qucsator-rf and Qucs-S GUI
 # ------------------------------------------------------------------------------
-COPY scripts/install_qucs.sh /opt/rf-linux-env/scripts/install_qucs.sh
-RUN chmod +x /opt/rf-linux-env/scripts/install_qucs.sh && /opt/rf-linux-env/scripts/install_qucs.sh
+COPY scripts/install_qucs.sh /opt/rf-suite-env/scripts/install_qucs.sh
+RUN chmod +x /opt/rf-suite-env/scripts/install_qucs.sh && /opt/rf-suite-env/scripts/install_qucs.sh
 
 # ------------------------------------------------------------------------------
 # 6. Setup Plugins, Workbenches & MCP Server
 # ------------------------------------------------------------------------------
-COPY scripts/setup_plugins.sh /opt/rf-linux-env/scripts/setup_plugins.sh
-RUN chmod +x /opt/rf-linux-env/scripts/setup_plugins.sh && /opt/rf-linux-env/scripts/setup_plugins.sh
+COPY scripts/setup_plugins.sh /opt/rf-suite-env/scripts/setup_plugins.sh
+RUN chmod +x /opt/rf-suite-env/scripts/setup_plugins.sh && /opt/rf-suite-env/scripts/setup_plugins.sh
 
 # ------------------------------------------------------------------------------
 # 7. Desktop Configs, Tests, and Entrypoint
 # ------------------------------------------------------------------------------
-COPY config/ /opt/rf-linux-env/config/
-COPY tests/ /opt/rf-linux-env/tests/
-COPY entrypoint.sh /opt/rf-linux-env/entrypoint.sh
-RUN chmod +x /opt/rf-linux-env/entrypoint.sh /opt/rf-linux-env/tests/verify_environment.py
+COPY config/ /opt/rf-suite-env/config/
+COPY tests/ /opt/rf-suite-env/tests/
+COPY entrypoint.sh /opt/rf-suite-env/entrypoint.sh
+RUN chmod +x /opt/rf-suite-env/entrypoint.sh /opt/rf-suite-env/tests/verify_environment.py
 
 # Link noVNC vnc.html as index.html so root URL opens desktop directly
 RUN ln -sf /usr/share/novnc/vnc.html /usr/share/novnc/index.html || true
@@ -132,4 +132,4 @@ RUN ln -sf /usr/share/novnc/vnc.html /usr/share/novnc/index.html || true
 WORKDIR /workspace
 EXPOSE 6080 5900 8000
 
-ENTRYPOINT ["/opt/rf-linux-env/entrypoint.sh"]
+ENTRYPOINT ["/opt/rf-suite-env/entrypoint.sh"]

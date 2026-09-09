@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openbox_menu xmlns="http://openbox.org/3.4/menu">
-  <menu id="root-menu" label="RF Workbench">
+  <menu id="root-menu" label="RF Suite">
     <separator label="RF Engineering Applications" />
     <item label="KiCad 8 (Full Suite)">
       <action name="Execute">
@@ -41,7 +41,7 @@
     </item>
     <item label="Environment Diagnostic">
       <action name="Execute">
-        <command>xterm -hold -e "rf-env-info &amp;&amp; python3 /opt/rf-linux-env/tests/verify_environment.py"</command>
+        <command>xterm -hold -e "rf-env-info &amp;&amp; python3 /opt/rf-suite-env/tests/verify_environment.py"
       </action>
     </item>
     

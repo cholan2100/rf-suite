@@ -13,11 +13,11 @@ export DISPLAY
 
 # Setup Openbox configs
 mkdir -p /root/.config/openbox
-if [ -f /opt/rf-linux-env/config/openbox-menu.xml ]; then
-    cp /opt/rf-linux-env/config/openbox-menu.xml /root/.config/openbox/menu.xml
+if [ -f /opt/rf-suite-env/config/openbox-menu.xml ]; then
+    cp /opt/rf-suite-env/config/openbox-menu.xml /root/.config/openbox/menu.xml
 fi
-if [ -f /opt/rf-linux-env/config/openbox-rc.xml ]; then
-    cp /opt/rf-linux-env/config/openbox-rc.xml /root/.config/openbox/rc.xml
+if [ -f /opt/rf-suite-env/config/openbox-rc.xml ]; then
+    cp /opt/rf-suite-env/config/openbox-rc.xml /root/.config/openbox/rc.xml
 fi
 
 # Function to start virtual display server
@@ -63,7 +63,7 @@ start_desktop() {
     fi
 
     echo "======================================================================"
-    echo "  RF Workbench Container is Ready!"
+    echo "  RF Suite Container is Ready!"
     echo "  - Web GUI (noVNC): http://localhost:6080/vnc.html"
     echo "  - Direct VNC:      localhost:5900"
     echo "  - Workspace:       /workspace"

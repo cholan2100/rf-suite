@@ -20,7 +20,7 @@ services:
     volumes:
       # Project files mount (configure in .env or override via command line; defaults to parent directory)
       - "${PROJECT_PATH:-..}:/workspace"
-      - ./entrypoint.sh:/opt/rf-linux-env/entrypoint.sh:ro
+      - ./entrypoint.sh:/opt/rf-suite-env/entrypoint.sh:ro
       # 3D Component Models for photorealistic KiCad rendering
       - "${KICAD_3DMODELS_PATH:-/mnt/d/Programs/KiCad/share/kicad/3dmodels}:/usr/share/kicad/3dmodels:ro"
       # Persistent CAD & EDA user configurations
