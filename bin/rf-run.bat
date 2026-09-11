@@ -24,12 +24,12 @@ rem 2. If AWS mode, delegate to AWS remote execution runner
 if "%AWS_MODE%"=="1" (
     echo [RF Suite] AWS Backend Active. Dispatching command to AWS host...
     cd /d "%~dp0\..\.."
-    where python >nul 2>nul
+    python -c "exit(0)" >nul 2>nul
     if !errorlevel! equ 0 (
         python -m agent.aws.rf_remote_client run %*
         exit /b !errorlevel!
     )
-    where py >nul 2>nul
+    py -3 -c "exit(0)" >nul 2>nul
     if !errorlevel! equ 0 (
         py -3 -m agent.aws.rf_remote_client run %*
         exit /b !errorlevel!
