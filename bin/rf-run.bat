@@ -36,7 +36,7 @@ if "%AWS_MODE%"=="1" (
     )
     rem Fallback to WSL python3 if Windows Python is not on PATH
     for /f "delims=" %%i in ('wsl -d Debian wslpath "%~dp0..\.."') do set "WSL_ROOT=%%i"
-    wsl -d Debian bash -c "cd !WSL_ROOT! && python3 -m agent.aws.rf_remote_client run %*"
+    wsl -d Debian python3 "!WSL_ROOT!/agent/aws/rf_remote_client.py" run %*
     exit /b !errorlevel!
 )
 

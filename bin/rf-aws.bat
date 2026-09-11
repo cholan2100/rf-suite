@@ -19,5 +19,5 @@ if %errorlevel% equ 0 (
 
 rem Fallback to WSL python3 if Windows Python is not functional
 for /f "delims=" %%i in ('wsl -d Debian wslpath "%cd%"') do set "WSL_ROOT=%%i"
-wsl -d Debian bash -c "cd !WSL_ROOT! && python3 -m agent.aws.rf_remote_client %*"
+wsl -d Debian python3 "!WSL_ROOT!/agent/aws/rf_remote_client.py" %*
 exit /b %errorlevel%

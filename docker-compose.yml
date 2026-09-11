@@ -22,7 +22,7 @@ services:
       - "${PROJECT_PATH:-..}:/workspace"
       - ./entrypoint.sh:/opt/rf-suite-env/entrypoint.sh:ro
       # 3D Component Models for photorealistic KiCad rendering
-      - "${KICAD_3DMODELS_PATH:-/mnt/d/Programs/KiCad/share/kicad/3dmodels}:/usr/share/kicad/3dmodels:ro"
+      - "${KICAD_3DMODELS_PATH:-rf_suite_3dmodels}:/usr/share/kicad/3dmodels"
       # Persistent CAD & EDA user configurations
       - rf_suite_config:/root/.config
       - rf_suite_local:/root/.local
@@ -43,6 +43,8 @@ services:
     working_dir: /workspace
 
 volumes:
+  rf_suite_3dmodels:
+    name: rf_suite_3dmodels
   rf_suite_config:
     name: rf_suite_config
   rf_suite_local:
