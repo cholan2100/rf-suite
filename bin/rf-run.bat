@@ -4,21 +4,17 @@ cd /d "%~dp0\.."
 
 rem 1. Check for AWS Mode via environment variable or .env file
 set "AWS_MODE=0"
-if /i "%RF_BACKEND%"=="aws" set "AWS_MODE=1"
-if not "%AWS_INSTANCE_ID%"=="" set "AWS_MODE=1"
-
-if "%AWS_MODE%"=="0" (
+set "BACKEND_VAL="
+if defined RF_BACKEND set "BACKEND_VAL=%RF_BACKEND%"
+if not defined BACKEND_VAL (
     if exist "..\.env" (
-        for /f "tokens=1,2 delims==" %%a in ('findstr /i "^RF_BACKEND=aws ^AWS_INSTANCE_ID=" "..\.env" 2^>nul') do (
-            set "AWS_MODE=1"
-        )
+        for /f "tokens=1,2 delims==" %%a in ('findstr /i "^RF_BACKEND=" "..\.env" 2^>nul') do set "BACKEND_VAL=%%b"
     )
-    if exist ".env" (
-        for /f "tokens=1,2 delims==" %%a in ('findstr /i "^RF_BACKEND=aws ^AWS_INSTANCE_ID=" ".env" 2^>nul') do (
-            set "AWS_MODE=1"
-        )
+    if not defined BACKEND_VAL if exist ".env" (
+        for /f "tokens=1,2 delims==" %%a in ('findstr /i "^RF_BACKEND=" ".env" 2^>nul') do set "BACKEND_VAL=%%b"
     )
 )
+if /i "%BACKEND_VAL%"=="aws" set "AWS_MODE=1"
 
 rem 2. If AWS mode, delegate to AWS remote execution runner
 if "%AWS_MODE%"=="1" (

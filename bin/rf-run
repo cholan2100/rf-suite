@@ -5,13 +5,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "$SCRIPT_DIR"
 
-# 1. Check for AWS mode in environment or .env
+# 1. Check for AWS mode in environment or .env (default: local)
 AWS_MODE=0
-if [ "${RF_BACKEND:-}" = "aws" ] || [ -n "${AWS_INSTANCE_ID:-}" ]; then
-    AWS_MODE=1
-elif [ -f "${REPO_ROOT}/.env" ] && grep -Eq "^(RF_BACKEND=aws|AWS_INSTANCE_ID=)" "${REPO_ROOT}/.env"; then
-    AWS_MODE=1
-elif [ -f "${SCRIPT_DIR}/.env" ] && grep -Eq "^(RF_BACKEND=aws|AWS_INSTANCE_ID=)" "${SCRIPT_DIR}/.env"; then
+BACKEND_VAL="${RF_BACKEND:-}"
+if [ -z "$BACKEND_VAL" ]; then
+    if [ -f "${REPO_ROOT}/.env" ]; then
+        BACKEND_VAL=$(grep -E "^RF_BACKEND=" "${REPO_ROOT}/.env" | head -n 1 | cut -d '=' -f 2 | tr -d '\r"')
+    fi
+    if [ -z "$BACKEND_VAL" ] && [ -f "${SCRIPT_DIR}/.env" ]; then
+        BACKEND_VAL=$(grep -E "^RF_BACKEND=" "${SCRIPT_DIR}/.env" | head -n 1 | cut -d '=' -f 2 | tr -d '\r"')
+    fi
+fi
+if [ "$BACKEND_VAL" = "aws" ]; then
     AWS_MODE=1
 fi
 

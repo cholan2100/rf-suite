@@ -13,21 +13,23 @@ if (-not $CommandArgs) {
     exit 1
 }
 
-# Check for AWS mode
+# Check for AWS mode (default: local)
 $AwsMode = $false
-if ($env:RF_BACKEND -eq "aws" -or $env:AWS_INSTANCE_ID) {
-    $AwsMode = $true
-} else {
+$backendVal = $env:RF_BACKEND
+if (-not $backendVal) {
     $envFiles = @("$RepoRoot\.env", "$SuiteDir\.env")
     foreach ($ef in $envFiles) {
         if (Test-Path $ef) {
-            $matches = Get-Content $ef | Where-Object { $_ -match "^(RF_BACKEND=aws|AWS_INSTANCE_ID=)" }
-            if ($matches) {
-                $AwsMode = $true
+            $line = Get-Content $ef | Where-Object { $_ -match "^RF_BACKEND=" } | Select-Object -First 1
+            if ($line) {
+                $backendVal = ($line -split "=", 2)[1].Trim().Trim('"').Trim("'")
                 break
             }
         }
     }
+}
+if ($backendVal -eq "aws") {
+    $AwsMode = $true
 }
 
 if ($AwsMode) {
