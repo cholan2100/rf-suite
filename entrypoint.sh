@@ -64,7 +64,7 @@ start_desktop() {
 
     if ! pgrep -f "uvicorn" > /dev/null; then
         echo "[Entrypoint] Starting FastAPI SaaS Microservice on port 8000..."
-        python3 -m uvicorn agent.saas.app:app --host 0.0.0.0 --port 8000 --reload &
+        python3 -m uvicorn agent.saas.app:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 65 &
     fi
 
     echo "======================================================================"
