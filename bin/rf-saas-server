@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# RF Suite SaaS Server Launcher
+# Starts the FastAPI service inside the container or local Python environment
+# ==============================================================================
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+PORT="${PORT:-8000}"
+HOST="${HOST:-0.0.0.0}"
+WORKERS="${WORKERS:-2}"
+
+echo "[RF Suite SaaS] Starting FastAPI Design Engine on ${HOST}:${PORT}..."
+export PYTHONPATH="${REPO_ROOT}:${PYTHONPATH}"
+
+exec uvicorn agent.saas.app:app --host "$HOST" --port "$PORT" --workers "$WORKERS"
