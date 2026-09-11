@@ -62,10 +62,16 @@ start_desktop() {
         websockify --web /usr/share/novnc 6080 localhost:5900 &
     fi
 
+    if ! pgrep -f "uvicorn" > /dev/null; then
+        echo "[Entrypoint] Starting FastAPI SaaS Microservice on port 8000..."
+        python3 -m uvicorn agent.saas.app:app --host 0.0.0.0 --port 8000 --reload &
+    fi
+
     echo "======================================================================"
     echo "  RF Suite Container is Ready!"
     echo "  - Web GUI (noVNC): http://localhost:6080/vnc.html"
     echo "  - Direct VNC:      localhost:5900"
+    echo "  - SaaS REST API:   http://localhost:8000 (Docs: http://localhost:8000/docs)"
     echo "  - Workspace:       /workspace"
     echo "======================================================================"
 }
