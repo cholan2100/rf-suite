@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Disable core dumps to prevent core.* file generation in /workspace
+ulimit -c 0 2>/dev/null || true
+
 # Ensure python aliases to python3 if missing
 if ! command -v python >/dev/null 2>&1; then
     ln -sf "$(command -v python3)" /usr/local/bin/python 2>/dev/null || true
