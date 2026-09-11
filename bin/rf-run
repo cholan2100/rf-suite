@@ -2,8 +2,33 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "$SCRIPT_DIR"
 
+# 1. Check for AWS mode in environment or .env
+AWS_MODE=0
+if [ "${RF_BACKEND:-}" = "aws" ] || [ -n "${AWS_INSTANCE_ID:-}" ]; then
+    AWS_MODE=1
+elif [ -f "${REPO_ROOT}/.env" ] && grep -Eq "^(RF_BACKEND=aws|AWS_INSTANCE_ID=)" "${REPO_ROOT}/.env"; then
+    AWS_MODE=1
+elif [ -f "${SCRIPT_DIR}/.env" ] && grep -Eq "^(RF_BACKEND=aws|AWS_INSTANCE_ID=)" "${SCRIPT_DIR}/.env"; then
+    AWS_MODE=1
+fi
+
+if [ "$AWS_MODE" -eq 1 ]; then
+    echo "[RF Suite] AWS Backend Active. Dispatching command to AWS host..."
+    cd "$REPO_ROOT"
+    if command -v python3 >/dev/null 2>&1; then
+        exec python3 -m agent.aws.rf_remote_client run "$@"
+    elif command -v python >/dev/null 2>&1; then
+        exec python -m agent.aws.rf_remote_client run "$@"
+    else
+        echo "[RF Suite] Error: python3 is required for AWS remote execution." >&2
+        exit 1
+    fi
+fi
+
+# 2. Local Docker Execution Mode
 if docker compose exec rf-suite "$@" 2>/dev/null; then
     exit 0
 else

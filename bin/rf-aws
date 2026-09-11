@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "$REPO_ROOT"
+
+if command -v python3 >/dev/null 2>&1; then
+    exec python3 -m agent.aws.rf_remote_client "$@"
+elif command -v python >/dev/null 2>&1; then
+    exec python -m agent.aws.rf_remote_client "$@"
+else
+    echo "Error: python3 is required to run rf-aws." >&2
+    exit 1
+fi
