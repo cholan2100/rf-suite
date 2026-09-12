@@ -78,14 +78,21 @@ try {
 
 if (-not $healthy -and $WakeUrl) {
     Write-Host "[RF SaaS Client] Cloud microservice is asleep ($ServerUrl). Triggering serverless wake-up..." -ForegroundColor Yellow
-    try {
-        $wakeRes = Invoke-RestMethod -Uri $WakeUrl -Method Get -TimeoutSec 120 -ErrorAction Stop
-        if ($wakeRes.status -eq "ready") {
-            Write-Host "[OK] Cloud microservice successfully woke up ($($wakeRes.elapsed_seconds)s)!" -ForegroundColor Green
-            $healthy = $true
+    $wakeUrls = @($WakeUrl)
+    $defaultWake = "https://iltxrk3s2k.execute-api.ap-south-2.amazonaws.com"
+    if ($wakeUrls -notcontains $defaultWake) { $wakeUrls += $defaultWake }
+
+    foreach ($w in $wakeUrls) {
+        try {
+            $wakeRes = Invoke-RestMethod -Uri $w -Method Get -TimeoutSec 120 -ErrorAction Stop
+            if ($wakeRes.status -eq "ready") {
+                Write-Host "[OK] Cloud microservice successfully woke up ($($wakeRes.elapsed_seconds)s)!" -ForegroundColor Green
+                $healthy = $true
+                break
+            }
+        } catch {
+            Write-Host "[RF SaaS Client] Notice from wake trigger ($w): $($_.Exception.Message)" -ForegroundColor DarkGray
         }
-    } catch {
-        Write-Host "[RF SaaS Client] Notice from wake trigger: $($_.Exception.Message)" -ForegroundColor DarkGray
     }
 
     if (-not $healthy) {
