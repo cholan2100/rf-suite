@@ -81,11 +81,11 @@ if (-not $healthy -and $WakeUrl) {
     try {
         $wakeRes = Invoke-RestMethod -Uri $WakeUrl -Method Get -TimeoutSec 120 -ErrorAction Stop
         if ($wakeRes.status -eq "ready") {
-            Write-Host "✔ Cloud microservice successfully woke up ($($wakeRes.elapsed_seconds)s)!" -ForegroundColor Green
+            Write-Host "[OK] Cloud microservice successfully woke up ($($wakeRes.elapsed_seconds)s)!" -ForegroundColor Green
             $healthy = $true
         }
     } catch {
-        Write-Host "[RF SaaS Client] Notice from wake trigger: $_" -ForegroundColor DarkGray
+        Write-Host "[RF SaaS Client] Notice from wake trigger: $($_.Exception.Message)" -ForegroundColor DarkGray
     }
 
     if (-not $healthy) {
@@ -95,7 +95,7 @@ if (-not $healthy -and $WakeUrl) {
                 $h = Invoke-RestMethod -Uri "$ServerUrl/health" -Method Get -TimeoutSec 3 -ErrorAction Stop
                 if ($h.status -eq "healthy") {
                     $healthy = $true
-                    Write-Host "✔ Cloud microservice is online and healthy!" -ForegroundColor Green
+                    Write-Host "[OK] Cloud microservice is online and healthy!" -ForegroundColor Green
                     break
                 }
             } catch {
