@@ -8,11 +8,31 @@ param(
 
     [string]$Desc = "",
     [string[]]$Stages = @(),
-    [string]$ServerUrl = "http://192.168.0.100:8000",
+    [string]$ServerUrl = "",
     [string]$OutputDir = "projects"
 )
 
 $ErrorActionPreference = "Stop"
+
+# Resolve Server URL dynamically from parameter, env var, or .env file
+if (-not $ServerUrl) {
+    if ($env:RF_SAAS_URL) {
+        $ServerUrl = $env:RF_SAAS_URL
+    } else {
+        foreach ($envFile in @("..\.env", ".env", "$PSScriptRoot\..\..\.env", "$PSScriptRoot\..\.env")) {
+            if (Test-Path $envFile) {
+                $match = Get-Content $envFile | Where-Object { $_ -match "^RF_SAAS_URL=(.+)$" } | Select-Object -First 1
+                if ($match) {
+                    $ServerUrl = ($match -replace "^RF_SAAS_URL=", "").Trim().Trim('"').Trim("'")
+                    break
+                }
+            }
+        }
+    }
+}
+if (-not $ServerUrl) {
+    $ServerUrl = "http://127.0.0.1:8000"
+}
 
 Write-Host "[RF SaaS Client] Connecting to SaaS API at $ServerUrl..." -ForegroundColor Cyan
 

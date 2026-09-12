@@ -16,19 +16,20 @@ if [ -z "$BACKEND_VAL" ]; then
         BACKEND_VAL=$(grep -E "^RF_BACKEND=" "${SCRIPT_DIR}/.env" | head -n 1 | cut -d '=' -f 2 | tr -d '\r"')
     fi
 fi
-if [ "$BACKEND_VAL" = "aws" ]; then
-    AWS_MODE=1
+SAAS_MODE=0
+if [ "$BACKEND_VAL" = "aws_saas" ] || [ "$BACKEND_VAL" = "saas" ] || [ "$BACKEND_VAL" = "aws" ]; then
+    SAAS_MODE=1
 fi
 
-if [ "$AWS_MODE" -eq 1 ]; then
-    echo "[RF Suite] AWS Backend Active. Dispatching command to AWS host..."
+if [ "$SAAS_MODE" -eq 1 ]; then
+    echo "[RF Suite] SaaS Microservice Backend Active ($BACKEND_VAL)..."
     cd "$REPO_ROOT"
     if command -v python3 >/dev/null 2>&1; then
-        exec python3 -m agent.aws.rf_remote_client run "$@"
+        exec python3 -m agent.workflow --backend aws_saas "$@"
     elif command -v python >/dev/null 2>&1; then
-        exec python -m agent.aws.rf_remote_client run "$@"
+        exec python -m agent.workflow --backend aws_saas "$@"
     else
-        echo "[RF Suite] Error: python3 is required for AWS remote execution." >&2
+        echo "[RF Suite] Error: python3 is required for SaaS client execution." >&2
         exit 1
     fi
 fi
