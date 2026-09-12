@@ -19,8 +19,10 @@ if (-not $ServerUrl) {
     if ($env:RF_SAAS_URL) {
         $ServerUrl = $env:RF_SAAS_URL
     } else {
+        $foundEnv = $false
         foreach ($envFile in @("..\.env", ".env", "$PSScriptRoot\..\..\.env", "$PSScriptRoot\..\.env")) {
             if (Test-Path $envFile) {
+                $foundEnv = $true
                 $match = Get-Content $envFile | Where-Object { $_ -match "^RF_SAAS_URL=(.+)$" } | Select-Object -First 1
                 if ($match) {
                     $ServerUrl = ($match -replace "^RF_SAAS_URL=", "").Trim().Trim('"').Trim("'")
@@ -28,10 +30,21 @@ if (-not $ServerUrl) {
                 }
             }
         }
+        if (-not $foundEnv -and -not $ServerUrl) {
+            $defaultEnvPath = "$PSScriptRoot\..\..\.env"
+            if (-not (Test-Path $defaultEnvPath)) {
+                @"
+# RF Suite SaaS Microservice Configuration
+RF_BACKEND=aws_saas
+RF_SAAS_URL=http://rf.nakedcircuits.com:8000
+"@ | Out-File -FilePath $defaultEnvPath -Encoding utf8 -Force
+            }
+            $ServerUrl = "http://rf.nakedcircuits.com:8000"
+        }
     }
 }
 if (-not $ServerUrl) {
-    $ServerUrl = "http://127.0.0.1:8000"
+    $ServerUrl = "http://rf.nakedcircuits.com:8000"
 }
 
 Write-Host "[RF SaaS Client] Connecting to SaaS API at $ServerUrl..." -ForegroundColor Cyan
