@@ -47,7 +47,63 @@ if (-not $ServerUrl) {
     $ServerUrl = "http://rf.nakedcircuits.com:8000"
 }
 
+# Resolve Serverless Wake URL
+$WakeUrl = $env:RF_WAKE_URL
+if (-not $WakeUrl) {
+    foreach ($envFile in @("..\.env", ".env", "$PSScriptRoot\..\..\.env", "$PSScriptRoot\..\.env")) {
+        if (Test-Path $envFile) {
+            $match = Get-Content $envFile | Where-Object { $_ -match "^RF_WAKE_URL=(.+)$" } | Select-Object -First 1
+            if ($match) {
+                $WakeUrl = ($match -replace "^RF_WAKE_URL=", "").Trim().Trim('"').Trim("'")
+                break
+            }
+        }
+    }
+}
+if (-not $WakeUrl) {
+    $WakeUrl = "https://iltxrk3s2k.execute-api.ap-south-2.amazonaws.com"
+}
+
+# Pre-flight Health Probe & Serverless Wake-on-Request
 Write-Host "[RF SaaS Client] Connecting to SaaS API at $ServerUrl..." -ForegroundColor Cyan
+$healthy = $false
+try {
+    $h = Invoke-RestMethod -Uri "$ServerUrl/health" -Method Get -TimeoutSec 3 -ErrorAction Stop
+    if ($h.status -eq "healthy") {
+        $healthy = $true
+    }
+} catch {
+    $healthy = $false
+}
+
+if (-not $healthy -and $WakeUrl) {
+    Write-Host "[RF SaaS Client] Cloud microservice is asleep ($ServerUrl). Triggering serverless wake-up..." -ForegroundColor Yellow
+    try {
+        $wakeRes = Invoke-RestMethod -Uri $WakeUrl -Method Get -TimeoutSec 120 -ErrorAction Stop
+        if ($wakeRes.status -eq "ready") {
+            Write-Host "✔ Cloud microservice successfully woke up ($($wakeRes.elapsed_seconds)s)!" -ForegroundColor Green
+            $healthy = $true
+        }
+    } catch {
+        Write-Host "[RF SaaS Client] Notice from wake trigger: $_" -ForegroundColor DarkGray
+    }
+
+    if (-not $healthy) {
+        for ($i = 0; $i -lt 25; $i++) {
+            Start-Sleep -Seconds 3
+            try {
+                $h = Invoke-RestMethod -Uri "$ServerUrl/health" -Method Get -TimeoutSec 3 -ErrorAction Stop
+                if ($h.status -eq "healthy") {
+                    $healthy = $true
+                    Write-Host "✔ Cloud microservice is online and healthy!" -ForegroundColor Green
+                    break
+                }
+            } catch {
+                # continue waiting
+            }
+        }
+    }
+}
 
 # 1. Prepare run payload
 $stageList = @()
