@@ -7,6 +7,8 @@ param(
     [string]$ProjectName,
 
     [string]$Desc = "",
+    [string]$SpecFile = "",
+    [string]$SpecJson = "",
     [string[]]$Stages = @(),
     [string]$ServerUrl = "",
     [string]$OutputDir = "projects"
@@ -127,11 +129,23 @@ $payload = @{}
 if ($stageList.Count -gt 0) {
     $payload["stages"] = $stageList
 }
-if ($Desc) {
+
+# Resolve circuit specification (spec) or natural language description
+$localSpecPath = Join-Path $OutputDir (Join-Path $ProjectName "spec.json")
+if ($SpecFile -and (Test-Path $SpecFile)) {
+    Write-Host "[RF SaaS Client] Loading circuit specification from file: $SpecFile" -ForegroundColor Cyan
+    $payload["spec"] = (Get-Content $SpecFile -Raw | ConvertFrom-Json)
+} elseif ($SpecJson) {
+    Write-Host "[RF SaaS Client] Loading circuit specification from JSON argument" -ForegroundColor Cyan
+    $payload["spec"] = ($SpecJson | ConvertFrom-Json)
+} elseif (Test-Path $localSpecPath) {
+    Write-Host "[RF SaaS Client] Detected local circuit specification: $localSpecPath" -ForegroundColor Cyan
+    $payload["spec"] = (Get-Content $localSpecPath -Raw | ConvertFrom-Json)
+} elseif ($Desc) {
     $payload["desc"] = $Desc
 }
 
-$jsonBody = $payload | ConvertTo-Json -Compress
+$jsonBody = $payload | ConvertTo-Json -Depth 20 -Compress
 $runUri = "$ServerUrl/v1/projects/$ProjectName/run"
 
 Write-Host "[RF SaaS Client] Dispatching stage(s) [$(($Stages -join ', '))] for '$ProjectName'..." -ForegroundColor Green
