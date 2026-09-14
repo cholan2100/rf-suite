@@ -3,15 +3,16 @@
 # Dispatches workflow stages to Hosted SaaS API without any WSL dependencies
 # ==============================================================================
 param(
-    [Parameter(Mandatory=$true)]
-    [string]$ProjectName,
+    [Parameter(Mandatory=$false)]
+    [string]$ProjectName = "",
 
     [string]$Desc = "",
     [string]$SpecFile = "",
     [string]$SpecJson = "",
     [string[]]$Stages = @(),
     [string]$ServerUrl = "",
-    [string]$OutputDir = "projects"
+    [string]$OutputDir = "projects",
+    [switch]$Unique
 )
 
 $ErrorActionPreference = "Stop"
@@ -114,7 +115,23 @@ if (-not $healthy -and $WakeUrl) {
     }
 }
 
-# 1. Prepare run payload
+# 1. Resolve Project Name and auto-generate unique random code if needed
+if (-not $ProjectName -or $ProjectName -eq "auto" -or $Unique) {
+    $randHex = [System.Guid]::NewGuid().ToString("N").Substring(0, 6)
+    if ($ProjectName -and $ProjectName -ne "auto") {
+        $ProjectName = "${ProjectName}_${randHex}"
+    } elseif ($Desc) {
+        $cleanDesc = ($Desc -replace '[^a-zA-Z0-9_]', '_').ToLower()
+        $cleanDesc = ($cleanDesc -replace '_+', '_').Trim('_')
+        if ($cleanDesc.Length -gt 22) { $cleanDesc = $cleanDesc.Substring(0, 22) }
+        $ProjectName = "${cleanDesc}_${randHex}"
+    } else {
+        $ProjectName = "rf_project_${randHex}"
+    }
+    Write-Host "[RF SaaS Client] Auto-assigned unique project ID: $ProjectName" -ForegroundColor Cyan
+}
+
+# 2. Prepare run payload
 $stageList = @()
 foreach ($s in $Stages) {
     if ($s -match ',') {
@@ -151,7 +168,11 @@ $runUri = "$ServerUrl/v1/projects/$ProjectName/run"
 Write-Host "[RF SaaS Client] Dispatching stage(s) [$(($Stages -join ', '))] for '$ProjectName'..." -ForegroundColor Green
 $response = Invoke-RestMethod -Uri $runUri -Method Post -ContentType "application/json" -Body $jsonBody -TimeoutSec 600
 
-Write-Host "[RF SaaS Client] Server execution status: $($response.status)" -ForegroundColor Green
+if ($response.project_name) {
+    $ProjectName = $response.project_name
+}
+
+Write-Host "[RF SaaS Client] Server execution status: $($response.status) (Project: $ProjectName)" -ForegroundColor Green
 
 # 2. Sync generated artifacts back to local projects directory
 $localProjectDir = Join-Path $OutputDir $ProjectName
